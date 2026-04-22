@@ -1,0 +1,44 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: spring_ai_2026_rag_augmentation
+  ai:
+
+    openai:
+      api-key: ${OPEN_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+
+    ollama:
+      chat:
+        model: llama3.1:8b
+      embedding:
+        model: mxbai-embed-large
+#    vectorstore:
+#      qdrant:
+#        initialize-schema: true
+#        collection-name: GameRules
+
+  cloud:
+    function:
+      definition: fileSupplier|documentReader|splitter|titleDeterminer|vectorStoreConsumer
+
+  threads:
+    virtual:
+      enabled: true
+
+file:
+  supplier:
+    directory: /Users/zikozee/codes/my_projects/spring_ai_2026_rag_augmentation/dropoff
+    filename-regex: .*\.(pdf|docx|txt)
+
+
+bound-elastic-on-vt:
+  enabled: true
+
+logging:
+  level:
+    reactor.core.scheduler: DEBUG
+
