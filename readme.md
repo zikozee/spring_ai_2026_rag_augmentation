@@ -30,15 +30,48 @@
   - the spring.cloud.function.definition with a pipe-delimiter separating the individual functions that make up the composed function
   - example: `spring.cloud.function.definition=fileSupplier|documentReader|splitter|titleDeterminer|vectorStoreConsumer`
   
+
 - _**file.supplier.directory**_ where to read the files from 
 - _**file.supplier.filename-regex**_ to specify a regular expression that will be used to filter the files in the directory. 
   - Only files whose names match the regular expression will be processed by the file supplier. 
     - For example, if you only want to process text files, you could set this property to `.*\.txt$` to match any file that ends with .txt.
 
-- note the name of the functions that are pipe delimited correspond beans that should be in the Spring application context.    
-  - **fileSupplier** bean is provided by Spring Function Catalog and autoconfigured for you
+
+### Function Responsibilities (_note the name of the functions that are pipe delimited correspond beans that should be in the Spring application context._)
+
+  - **fileSupplier** bean is provided by Spring Function Catalog and autoconfigured for you.
+
+
   - **documentReader**, which is an implementation of Spring AI’s DocumentReader interface that takes the file it is given and reads it into a Document
     - the document object is then handed over to the next function in the pipeline, which is the splitter
+  
+
   - **splitter** function is an implementation of Spring AI’s TextSplitter. 
     - It receives the Document and splits it into smaller chunks, returned as a list of Document objects
+  
+
+  - **titleDeterminer** function instead of relying on a naming convention to determine the title of a game, we use generative AI to figure it out based on the content of the document itself
+  
+
   - **vectorConsumer** receives the list of Document and which writes the document chunks into the vector store via Spring AI’s VectorStore interface
+
+### Running Pipeline
+- we use an ApplicationRunner to startup the pipeline
+  - `java
+      @Bean
+      ApplicationRunner go(FunctionCatalog catalog) {
+        Runnable composedFunction = catalog.lookup(null);
+        return args -> {
+          composedFunction.run();
+        };
+      }`
+  - ask for a list of document collections so that you will know the collection ID 
+    - curl --location 'http://localhost:6333/collections'
+    
+  - In Qdrant terminology, document chunks are called points (meaning that each chunk resides at some point in multidimensional space). To get a count of points, you can submit a POST request to the API
+    - curl --location 'http://localhost:6333/collections/GameRules/points/count' \
+      --header 'Content-Type: application/json' \
+      --data '{
+      "exact" :true
+      }'
+

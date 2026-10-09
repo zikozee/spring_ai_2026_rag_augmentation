@@ -127,8 +127,7 @@ public class FunctionConfiguration {
 
     @Primary
     @Bean
-    QdrantVectorStore customVectorStore(QdrantClient client, @Qualifier("ollamaEmbeddingModel") EmbeddingModel embeddingModel){
-
+    QdrantVectorStore customVectorStore(QdrantClient client, @Qualifier("aiEmbeddingModel") EmbeddingModel embeddingModel){
         return QdrantVectorStore
                 .builder(client, embeddingModel)
                 .initializeSchema(true)

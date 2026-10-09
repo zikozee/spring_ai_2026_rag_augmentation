@@ -42,3 +42,8 @@ logging:
   level:
     reactor.core.scheduler: DEBUG
 
+
+ai:
+  # ollama|openai
+  provider: openai
+
