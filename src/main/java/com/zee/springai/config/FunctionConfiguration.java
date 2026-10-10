@@ -76,12 +76,13 @@ public class FunctionConfiguration {
     // we use generative AI to figure it out based on the content of the document itself
     @Bean
     Function<Flux<List<Document>>, Flux<List<Document>>> titleDeterminer(
-            @Qualifier("ollamaChatModel") ChatModel chatModel,
+            @Qualifier("aiChatModel") ChatModel chatModel,
             @Value("classpath:/promptTemplates/namOfTheGame.st") Resource nameOfTheGamePromptTemplate){ // fourth bean in the pipeline name must match
 
         ChatClient chatClient = ChatClient.create(chatModel);
 
         return documentListFlux -> documentListFlux
+                .publishOn(Schedulers.boundedElastic())
                 .map(documents -> {
                   if(!documents.isEmpty()){
                       Document firstDocument = documents.getFirst();
